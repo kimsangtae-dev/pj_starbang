@@ -1,0 +1,62 @@
+@charset "utf-8";
+        .repwd {
+            max-width: 400px;
+            padding-top: 50px;
+            text-align: center;
+            margin: 0px auto;
+        }
+
+        .repwd > h1 {
+            margin-bottom: 55px;
+            color: rgb(34, 34, 34);
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .repwd_div {
+            width: 100%;
+            position: relative;
+        }
+
+        .re_input {
+            width: 100%;
+            background-color: transparent;
+            height: 46px;
+            color: rgb(68, 68, 68);
+            font-size: 15px;
+            background-color: rgb(255, 255, 255);
+            /*box-sizing: border-box;*/
+            -webkit-appearance: none;
+            padding: 0px 15px;
+            border: 1px solid rgb(208, 210, 214);
+            border-image: initial;
+            border-radius: 0px;
+            outline: none;
+        }
+
+        .re_btn {
+            width: 400px;
+            height: 70px;
+            color: rgb(255, 255, 255);
+            font-size: 17px;
+            font-weight: 500;
+            background-color: rgb(26, 90, 232);
+            border-width: 0px;
+            cursor: pointer;
+            border-radius: 0px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: transparent;
+            border-radius: 0px;
+        }
+
+        html body #root {
+            height: 100%;
+        }
+
+        .repwd_div + div {
+            margin-top: 8px;
+            margin-bottom: 50px;
+        }

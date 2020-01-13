@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="GalleryMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="galleryMap"
+		type="project.star.b2.model.Gallery">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="roomno" column="roomno" />
+		<result property="roomtype" column="roomtype" />
+		<result property="title" column="title" />
+		<result property="floor" column="floor" />
+		<result property="area" column="area" />
+		<result property="fee" column="fee" />
+		<result property="confirmdate" column="confirmdate" />
+		<result property="address" column="address" />
+		<result property="status" column="status" />
+		
+		<result property="feeitem" column="feeitem" />
+		<result property="supplyarea" column="supplyarea" />
+		<result property="parking" column="parking" />
+		<result property="optionitem" column="optionitem" />
+		<result property="heater" column="heater" />
+		<result property="builtin" column="builtin" />
+		<result property="elevator" column="elevator" />
+		<result property="pet" column="pet" />
+		<result property="veranda" column="veranda" />
+		<result property="loan" column="loan" />
+		<result property="commingday" column="commingday" />
+		<result property="userno" column="userno" />
+		<result property="email" column="email" />
+		<result property="name" column="name" />
+		
+		<result property="priceno" column="priceno" />
+		<result property="deposit" column="deposit" />
+		<result property="dealingtype" column="dealingtype" />
+		<result property="price" column="price" />
+		
+		<result property="filename" column="filename" />
+		<result property="thumbnail" column="thumbnail" />
+		
+		<result property="heartno" column="heartno" />
+		<result property="regdate" column="regdate" />
+	</resultMap>
+
+	<!-- 방찾기 용 다중행 조회를 위한 기능 정의 -->
+	<select id="selectList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+		SELECT
+		r.roomno, r.roomtype, r.title, r.floor, r.area, r.fee, DATE_FORMAT(confirmdate,
+		'%Y.%m.%d') AS confirmdate, p.dealingtype, p.deposit, p.price,
+		r.region_2depth_name, r.latitude, r.longitude, i.thumbnail
+		FROM room AS r
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+		<where>
+			r.status IN (0,1)
+			AND r.roomtype IN 
+ 			<foreach item="roomtypepate" index="index" collection="roomtypepate" open="(" separator="," close=")">
+				#{roomtypepate} 
+			</foreach>
+			
+			AND p.dealingtype IN 
+			<foreach item="dealingtypepate" index="index" collection="dealingtypepate" open="(" separator="," close=")">
+				#{dealingtypepate} 
+			</foreach>
+		
+			<if test="monthFrom != 0 or monthTo != 999999 or depositFrom != 0 or depositTo != 999999 or buyingFrom != 0 or buyingTo != 999999">
+				AND ( ((p.price between #{monthFrom} and #{monthTo} AND p.dealingtype="월세") AND (p.deposit BETWEEN #{depositFrom} and #{depositTo}))
+				OR (p.price BETWEEN #{depositFrom} and #{depositTo} AND p.dealingtype="전세")
+				OR (p.price between #{buyingFrom} and #{buyingTo} AND p.dealingtype="매매") )
+			</if>
+
+			<if test="feeFrom != 0 or feeTo != 999999">
+				AND r.fee between #{feeFrom} and #{feeTo}
+			</if>
+
+			<if test="sizeFrom != 0 or sizeTo != 999999">
+				AND r.area between #{sizeFrom} and #{sizeTo}
+			</if>
+			
+			<if test="region_2depth_name != null and region_2depth_name != ''">
+				AND region_2depth_name LIKE concat('%', #{region_2depth_name}, '%')
+			</if>
+
+			<if test="east != 0 or west != 0">
+				AND r.latitude between #{west} and #{east}
+			</if>
+			<if test="south != 0 or north != 0">
+				AND r.longitude between #{south} and #{north}
+			</if>
+		</where>
+		ORDER BY r.roomno DESC
+
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+	</select>
+
+	<!-- 조건에 맞는 데이터 수를 집계하여  int 타입으로 반환한다. count, max, min, sum, avg 함수를 사용한 경우 Mapper에서는 resultMap이 아닌 resultType으 정수형으로 반환한다. -->
+	<select id="selectCountAll"
+		parameterType="project.star.b2.model.Gallery" resultType="int">
+		SELECT COUNT(r.roomno) FROM room AS r
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		<where>
+			r.status IN (0,1)
+			AND r.roomtype IN 
+ 			<foreach item="roomtypepate" index="index" collection="roomtypepate" open="(" separator="," close=")">
+				#{roomtypepate} 
+			</foreach>
+			
+			AND p.dealingtype IN 
+			<foreach item="dealingtypepate" index="index" collection="dealingtypepate" open="(" separator="," close=")">
+				#{dealingtypepate} 
+			</foreach>
+		
+			<if test="monthFrom != 0 or monthTo != 999999 or depositFrom != 0 or depositTo != 999999 or buyingFrom != 0 or buyingTo != 999999">
+				AND ( ((p.price between #{monthFrom} and #{monthTo} AND p.dealingtype="월세") AND (p.deposit BETWEEN #{depositFrom} and #{depositTo}))
+				OR (p.price BETWEEN #{depositFrom} and #{depositTo} AND p.dealingtype="전세")
+				OR (p.price between #{buyingFrom} and #{buyingTo} AND p.dealingtype="매매") )
+			</if>
+
+			<if test="feeFrom != 0 or feeTo != 999999">
+				AND r.fee between #{feeFrom} and #{feeTo}
+			</if>
+
+			<if test="sizeFrom != 0 or sizeTo != 999999">
+				AND r.area between #{sizeFrom} and #{sizeTo}
+			</if>
+
+			<if test="region_2depth_name != null and region_2depth_name != ''">
+				AND region_2depth_name LIKE concat('%', #{region_2depth_name}, '%')
+			</if>
+
+			<if test="east != 0 or west != 0">
+				AND r.latitude between #{west} and #{east}
+			</if>
+			<if test="south != 0 or north != 0">
+				AND r.longitude between #{south} and #{north}
+			</if>
+		</where>
+		ORDER BY r.roomno ASC
+	</select>
+	
+		<!-- 조건에 맞는 데이터 수를 집계하여  int 타입으로 반환하기 위한 mapper 인기매물, 짬한방의 개수 카운터 mapper이다. -->
+		<select id="selectCountAll2" parameterType="project.star.b2.model.Gallery" resultType="int">
+		SELECT COUNT(r.roomno) FROM room AS r
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		<where>
+		
+			<if test="monthFrom != 0 or monthTo != 999999 or depositFrom != 0 or depositTo != 999999 or buyingFrom != 0 or buyingTo != 999999">
+				AND ( ((p.price between #{monthFrom} and #{monthTo} AND p.dealingtype="월세") AND (p.deposit BETWEEN #{depositFrom} and #{depositTo}))
+				OR (p.price BETWEEN #{depositFrom} and #{depositTo} AND p.dealingtype="전세")
+				OR (p.price between #{buyingFrom} and #{buyingTo} AND p.dealingtype="매매") )
+			</if>
+
+			<if test="feeFrom != 0 or feeTo != 999999">
+				AND r.fee between #{feeFrom} and #{feeTo}
+			</if>
+
+			<if test="sizeFrom != 0 or sizeTo != 999999">
+				AND r.area between #{sizeFrom} and #{sizeTo}
+			</if>
+
+			<if test="region_2depth_name != null and region_2depth_name != ''">
+				AND region_2depth_name LIKE concat('%', #{region_2depth_name}, '%')
+			</if>
+
+			<if test="east != 0 or west != 0">
+				AND r.latitude between #{west} and #{east}
+			</if>
+			<if test="south != 0 or north != 0">
+				AND r.longitude between #{south} and #{north}
+			</if>
+		</where>
+		ORDER BY r.roomno ASC
+	</select>
+
+	<!-- 조건에 맞는 데이터  수를 보여주기 위한 mapper (구 별) -->
+	<select id="selectCountGu" parameterType="project.star.b2.model.Gallery" resultType="int">
+		SELECT COUNT(roomno) FROM room WHERE
+		(status=0 OR status=1) AND
+		region_2depth_name=#{region_2depth_name};
+	</select>
+
+	<!-- 조건에 맞는 데이터  를 보여주기 위한 mapper (구 별) -->
+	<select id="selectGu"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+		SELECT region_2depth_name FROM room GROUP BY region_2depth_name ORDER BY
+		region_2depth_name;
+	</select>
+
+	<!-- 지도에 매물 위치를 찍기 위한 다중행 조회 기능 정의 -->
+	<select id="selectPositionList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+		SELECT
+		roomno, roomtype, latitude, longitude, region_2depth_name
+		FROM room;
+	</select>
+
+	<!-- 인기매물용 다중행 조회를 위한 기능 정의 -->
+	<select id="selectfameList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+		SELECT 
+		h.roomno,count(h.roomno),r.roomtype,r.title,r.floor,r.area,r.fee,p.price,p.dealingtype,p.deposit,i.filename,DATE_FORMAT(r.confirmdate,'%Y.%m.%d') AS confirmdate
+		FROM heart h 
+		INNER JOIN room r ON h.roomno=r.roomno 
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+		WHERE r.status IN (0,1)
+		GROUP BY price, imageno,roomno,roomtype,title,floor,area,fee,dealingtype,deposit,filename,confirmdate
+		ORDER BY count(h.roomno) DESC
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+    </select>
+
+     <!-- 찜목록을 보여주기 위한 기능 정의 -->
+     <select id="selectHeartList" parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+     SELECT
+     u.userno, r.title,r.roomtype, r.floor, r.area, r.fee, p.price, p.dealingtype, p.deposit, i.filename, h.roomno,h.heartno,DATE_FORMAT(r.confirmdate,
+		'%Y.%m.%d') AS confirmdate
+	from user u
+     INNER JOIN heart h ON u.userno=h.userno
+     INNER JOIN room r ON r.roomno=h.roomno
+	INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+	INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+     WHERE u.userno=#{userno} AND r.status IN (0,1)
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+	</select>
+	
+	<!-- 찜목록의 데이터 수 조회를 위한 기능 정의 -->
+	<select id="selectHeartCountAll" parameterType="project.star.b2.model.Gallery" resultType="int">
+	SELECT COUNT(*)
+	from user u
+     INNER JOIN heart h ON u.userno=h.userno
+     INNER JOIN room r ON r.roomno=h.roomno
+	INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+	INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+     WHERE u.userno=#{userno} AND r.status IN (0,1)
+	</select>
+
+	<!-- 최근본방(쿠키용) 다중행 조회를 위한 기능 정의 -->
+	<select id="cookieList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+			SELECT
+			r.roomno, r.roomtype, r.title, r.floor, r.area, r.fee, DATE_FORMAT(r.confirmdate,
+			'%Y.%m.%d') AS confirmdate, p.dealingtype, p.deposit, p.price,
+			r.region_2depth_name,i.filename
+			FROM room AS r
+			INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+			INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+			WHERE r.status IN (0,1) AND r.roomno IN
+		<foreach item="list" index="index" collection="list" open="(" separator="," close=")">
+			#{list}
+		</foreach>
+		ORDER BY FIELD (r.roomno,
+		<foreach item="list" index="index" collection="list" separator=",">
+			#{list}
+		</foreach>)
+	</select>
+
+	<!-- 메인에서의 최근본방 view 4개 조회를 위한 기능 정의 -->
+	<select id="cookieMainList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+		SELECT
+		r.roomno, r.roomtype, r.title, r.floor, r.area, r.fee, DATE_FORMAT(confirmdate,
+		'%Y.%m.%d') AS confirmdate, p.dealingtype, p.deposit, p.price,
+		r.region_2depth_name,i.filename
+		FROM room AS r
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+		WHERE r.roomno IN
+		<foreach item="list" index="index" collection="list" open="(" separator="," close=")">
+			#{list}
+		</foreach>
+		ORDER BY FIELD (r.roomno,
+		<foreach item="list" index="index" collection="list" separator=",">
+			#{list} 
+		</foreach>) 
+			LIMIT 4
+	</select> 
+	<!-- 데이터 저장을 위한 기능 정의 -->
+    <insert id="insertItem"
+        parameterType="project.star.b2.model.Gallery"
+        useGeneratedKeys="true"
+        keyProperty="heartno">
+        INSERT INTO heart (regdate, roomno, userno) 
+        VALUES (now(), #{roomno}, #{userno});
+    </insert>
+    
+    <!-- Heart 단일행 조회를 위한 기능 정의 -->
+    <select id="selectItem"
+        parameterType="project.star.b2.model.Gallery"
+        resultMap="galleryMap">
+        SELECT * FROM Heart 
+    </select>
+    
+    <!-- 찜한방(체크박스 value로 조회) 다중행 조회를 위한 기능 정의 -->
+	<select id="CompareList"
+		parameterType="project.star.b2.model.Gallery" resultMap="galleryMap">
+			SELECT
+			r.roomno, r.roomtype, r.floor, r.area, r.fee, r.address,
+			p.dealingtype, p.price, p.deposit,
+			f.feeitem,f.supplyarea,f.parking,f.optionitem,f.heater,f.builtin,
+			f.elevator,f.pet,f.veranda,f.loan,f.commingday,
+			u.name,u.email,
+			i.filename
+			FROM room AS r
+			INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+			INNER JOIN (SELECT * FROM image WHERE imageno IN (SELECT MIN(imageno) FROM image GROUP BY roomno)) AS i ON r.roomno=i.roomno
+			INNER JOIN info AS f ON r.roomno=f.roomno
+			INNER JOIN user AS u ON r.userno=u.userno
+			WHERE r.roomno IN
+		<foreach item="list" index="index" collection="list" open="(" separator="," close=")">
+			#{list}
+		</foreach>
+	</select>
+	
+	<!-- 데이터 숫자 조회 위한 기능 정의  -->
+    <select id="selectItemint" parameterType="project.star.b2.model.Gallery"
+        resultType="int">
+        select count(roomno) from heart where roomno=#{roomno};
+    </select>
+    
+    <!-- 단일행 조회를 위한 기능 정의 -->
+    <select id="selectItemox"
+        parameterType="project.star.b2.model.Gallery"
+        resultType="int">
+        SELECT count(roomno) FROM heart where userno=#{userno} and roomno=#{roomno};
+    </select>
+    
+</mapper>

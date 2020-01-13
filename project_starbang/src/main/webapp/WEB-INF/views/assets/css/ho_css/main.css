@@ -1,0 +1,78 @@
+@charset "utf-8";
+/* ---------------------------------------
+ / 전체 페이지 부분
+  ---------------------------------------- */
+
+#root {
+    background-color: rgb(67, 131, 255);
+    background: url(../../img/ho_img/cp_architecture.jpg) center center / cover no-repeat;
+    background-size: cover;
+    width: auto;
+}
+
+/* ---------------------------------------
+ / 본문 부분
+  ---------------------------------------- */
+
+      /* body 전체 구성 설정 */
+#body {
+    min-height: 630px;
+    box-sizing: border-box;
+    padding-top: 165px;
+    text-align: center;
+}
+    /* 본문 title */
+#body>div>h1 {
+    box-sizing: border-box;
+    vertical-align: bottom;
+    display:inline;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 7px;
+    color: rgb(255, 255, 255);
+    font-size: 42px;
+    font-weight: 700;
+    line-height: bottom;
+    letter-spacing: 1px;
+    font-style:italic;
+    
+}
+.title>img{
+	padding-bottom:25px;
+	width: 120px;
+}
+    /* 본문 description */
+#body>div>.desc {
+    box-sizing: border-box;
+    vertical-align: baseline;
+    margin: 0px;
+    padding: 0px;
+    border-width: 0px;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    line-height: 30px;
+}
+
+    /* 링크박스 크기 및 위치 설정(부트스트랩 버튼으로 변경 가능) */
+#body>div>.link-sc {
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
+    display: inline-block;
+    width: 160px;
+    height: 50px;
+    margin-top: 31px;
+    color: rgb(255, 255, 255);
+    font-size: 17px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 50px;
+    box-shadow: rgba(16, 16, 16, 0.18) 0px 8px 19px 0px;
+    background-color: rgb(81, 136, 244);
+    text-decoration: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 5px;
+}
+

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="RoomMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="roomMap" type="project.star.b2.model.Room">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="roomno" column="roomno" />
+		<result property="roomtype" column="roomtype" />
+		<result property="title" column="title" />
+		<result property="floor" column="floor" />
+		<result property="area" column="area" />
+		<result property="fee" column="fee" />
+		<result property="confirmdate" column="confirmdate" />
+		<result property="address" column="address" />
+		<result property="dong" column="dong" />
+		<result property="ho" column="ho" />
+		<result property="latitude" column="latitude" />
+		<result property="longitude" column="longitude" />
+		<result property="region_2depth_name" column="region_2depth_name" />
+		<result property="region_3depth_name" column="region_3depth_name" />
+		<result property="userno" column="userno" />
+		<result property="status" column="status" />
+		<result property="dealingtype" column="dealingtype" />
+		<result property="price" column="price" />
+
+	</resultMap>
+
+	<!-- 단일행 조회를 위한 기능 정의 -->
+	<select id="selectItem"
+		parameterType="project.star.b2.model.Room" resultMap="roomMap">
+		SELECT
+			roomno, roomtype, title, floor, area, fee, confirmdate, address, dong, ho,
+			latitude, longitude, region_2depth_name, region_3depth_name, userno
+		FROM room
+		WHERE roomno=#{roomno};
+	</select>
+
+	<!-- 다중행 조회를 위한 기능 정의 -->
+	<select id="selectList"
+		parameterType="project.star.b2.model.Room" resultMap="roomMap">
+ 		SELECT
+			r.roomno, r.roomtype, p.dealingtype, p.price, title, floor, area, fee,
+			confirmdate, address, dong, ho, latitude, longitude, region_2depth_name, region_3depth_name, r.userno, u.name ,
+			r.status, cnt
+		FROM room r
+		INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+		INNER JOIN (SELECT * FROM user WHERE userno IN (SELECT MIN(userno) FROM user GROUP BY userno)) AS u ON r.userno=u.userno
+		LEFT OUTER JOIN (SELECT roomno, count(roomno) AS cnt from fakeroom group by roomno)f ON r.roomno=f.roomno
+
+		<where>
+			<if test="roomtype != null and roomtype != ''">
+				roomtype LIKE concat('%', #{roomtype}, '%')
+			</if>
+
+			<if test="dealingtype != null and dealingtype != ''">
+				OR dealingtype LIKE concat('%', #{dealingtype}, '%')
+			</if>
+
+			<if test="name != null and name != ''">
+				OR name LIKE concat('%', #{name}, '%')
+			</if>
+			
+			<if test="roomno != 0 and roomno != ''">
+				OR r.roomno=#{roomno}
+			</if>
+		</where>
+
+		GROUP BY r.roomno, roomtype, dealingtype, price, title, floor, area, fee, confirmdate, address, dong, ho, latitude,longitude, region_2depth_name, region_3depth_name, userno, name, status,cnt
+		ORDER BY r.roomno ASC
+
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+	</select>
+	
+	<!-- 공실관리 -->
+	<!-- '유저번호'에 의한 다중행조회하기 기능1 in Host(공실관리) -->
+    <select id="selectList_host_rmli1"
+        parameterType="project.star.b2.model.Room"
+        resultMap="roomMap">
+        SELECT r.userno, r.status, r.roomno, r.roomtype, r.confirmdate, r.address, p.dealingtype, p.deposit, p.price 
+       	FROM room r 
+       	INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+       	INNER JOIN (SELECT * FROM user WHERE userno IN (SELECT MIN(userno) FROM user GROUP BY userno)) AS u ON r.userno=#{userno}
+
+       	GROUP BY r.roomno, userno, status, roomtype, confirmdate, address, dealingtype, deposit, price
+       	ORDER BY r.roomno
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+    </select>
+    
+    <!-- '유저번호'에 의한 다중행조회하기 기능2 in Host(공실관리) -->
+    <select id="selectList_host_rmli2"
+        parameterType="project.star.b2.model.Room"
+        resultMap="roomMap">
+        SELECT r.userno, r.status, r.roomno, r.roomtype, r.confirmdate, r.address, p.dealingtype, p.deposit, p.price 
+       	FROM room r 
+       	INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+       	INNER JOIN (SELECT * FROM user WHERE userno IN (SELECT MIN(userno) FROM user GROUP BY userno)) AS u ON r.userno=#{userno}
+		WHERE status IN (0,1)
+       	GROUP BY r.roomno, userno, status, roomtype, confirmdate, address, dealingtype, deposit, price
+       	ORDER BY r.roomno
+    </select>
+    
+    <!-- '유저번호'에 의한 다중행조회하기 기능3 in Host(공실관리) -->
+    <select id="selectList_host_rmli3"
+        parameterType="project.star.b2.model.Room"
+        resultMap="roomMap">
+
+        SELECT r.userno, r.status, r.roomno, r.roomtype, r.confirmdate, r.address, p.dealingtype, p.deposit, p.price 
+       	FROM room r 
+       	INNER JOIN (SELECT * FROM price WHERE priceno IN (SELECT MIN(priceno) FROM price GROUP BY roomno)) AS p ON r.roomno=p.roomno
+       	INNER JOIN (SELECT * FROM user WHERE userno IN (SELECT MIN(userno) FROM user GROUP BY userno)) AS u ON r.userno=#{userno}
+		WHERE status IN (2,3,4)
+       	GROUP BY r.roomno, userno, status, roomtype, confirmdate, address, dealingtype, deposit, price
+       	ORDER BY r.roomno
+    </select>
+
+	<!-- 데이터 저장을 위한 기능 정의 -->
+	<insert id="insertItem"
+		parameterType="project.star.b2.model.Room" useGeneratedKeys="true"
+		keyProperty="roomno">
+		INSERT INTO room 
+				(roomtype, title, floor, area, fee, confirmdate, address, dong, ho, latitude, longitude, region_2depth_name, region_3depth_name, userno)
+		VALUES (#{roomtype}, #{title}, #{floor}, #{area}, #{fee}, #{confirmdate}, #{address}, #{dong}, #{ho}, #{latitude}, #{longitude},
+				#{region_2depth_name}, #{region_3depth_name}, #{userno});
+	</insert>
+
+	<!-- 데이터 삭제를 위한 기능 정의 -->
+	<delete id="deleteItem"
+		parameterType="project.star.b2.model.Room">
+		DELETE FROM room WHERE roomno=#{roomno};
+	</delete>
+
+	<!-- 데이터 갱신을 위한 기능 정의 -->
+	<update id="updateItem"
+		parameterType="project.star.b2.model.Room">
+		UPDATE room SET roomtype=#{roomtype}, title=#{title}, floor=#{floor},
+			area=#{area}, fee=#{fee}, confirmdate=#{confirmdate}, address=#{address}, dong=#{dong}, ho=#{ho}, latitude=#{latitude}, 
+			longitude=#{longitude}, region_2depth_name=#{region_2depth_name},region_3depth_name=#{region_3depth_name}, userno=#{userno}
+		WHERE roomno=#{roomno};
+	</update>
+
+	<!-- 조건에 맞는 데이터 수를 집계하여 int 타입으로 반환한다. count, max, min, sum, avg 함수를 사용한 
+		경우 Mapper에서는 resultMap이 아닌 resultType으로 반환한다. -->
+	<select id="selectCountAll"
+		parameterType="project.star.b2.model.Room" resultType="int">
+		SELECT COUNT(*) FROM room
+		<where>
+			<if test="roomtype != null and roomtype != ''">
+				roomtype LIKE concat('%', #{roomtype}, '%')
+			</if>
+
+			<if test="floor != null and floor != ''">
+				OR floor LIKE concat('%', #{floor}, '%')
+			</if>
+			<if test="status != null and status != ''">
+				status = #{status}
+			</if>
+			<if test="userno != null and userno != ''">
+				AND userno = #{userno}
+			</if>
+			
+			<if test="roomno != 0 and roomno != ''">
+				OR roomno=#{roomno}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 공실상태 변환하기 Host(공실관리) -->
+	<update id="updateStatus"
+		parameterType="project.star.b2.model.Room">
+		UPDATE room SET status=#{status} WHERE roomno=#{roomno};
+	</update>
+
+	<!-- 관리자 페이지 확인매물 데이터 갱신을 위한 기능 정의 -->
+	<update id="updateConfirmItem"
+		parameterType="project.star.b2.model.Room">
+		UPDATE room SET confirmdate=now(), status="1" WHERE roomno=#{roomno};
+	</update>
+
+	<!-- 관리자 페이지 숨김매물 데이터 갱신을 위한 기능 정의 -->
+	<update id="updateHiddenItem"
+		parameterType="project.star.b2.model.Room">
+		UPDATE room SET status="3" WHERE roomno=#{roomno};
+	</update>
+	
+	<!-- 관리자 페이지 허위매물 데이터 갱신을 위한 기능 정의 -->
+	<update id="updateFakeItem"
+		parameterType="project.star.b2.model.Room">
+		UPDATE room SET status="2" WHERE roomno=#{roomno};
+	</update>
+	
+	<!-- 허위매물 리스트 조회를 위한 기능 정의 -->
+	<select id="selectCheckList"
+		parameterType="project.star.b2.model.Room" resultMap="roomMap">
+		SELECT
+			r.roomno, r.roomtype, p.dealingtype, p.price, title, floor, area, fee,
+			confirmdate, address, dong, ho,
+			latitude, longitude, region_2depth_name, region_3depth_name, r.userno, u.name ,
+			r.status, count(f.roomno) AS cnt
+		FROM room r
+		INNER JOIN user u ON r.userno=u.userno
+		INNER JOIN price p ON r.roomno=p.roomno
+		LEFT OUTER JOIN (SELECT roomno, count(roomno) from fakeroom group by roomno)f ON r.roomno=f.roomno
+		WHERE r.status=#{status}
+
+		GROUP BY roomno
+		ORDER BY roomno ASC
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+	</select>
+	
+	<!-- 체크된 확인매물 리스트 조회를 위한 기능 정의 -->
+	<select id="selectCheckConfirmList"
+		parameterType="project.star.b2.model.Room" resultMap="roomMap">
+		SELECT
+		r.roomno, r.roomtype, p.dealingtype, p.price, title, floor, area, fee,
+		confirmdate, address, dong, ho,
+		latitude, longitude, region_2depth_name, region_3depth_name, r.userno, u.name ,
+		r.status, count(f.roomno) AS cnt
+		FROM room r
+		INNER JOIN user u ON r.userno=u.userno
+		INNER JOIN price p ON r.roomno=p.roomno
+		LEFT OUTER JOIN (SELECT roomno, count(roomno) from fakeroom group by
+		roomno)f ON r.roomno=f.roomno
+		WHERE confirmdate is NOT NULL
+
+		GROUP BY roomno
+		ORDER BY roomno ASC
+
+		<if test="listCount > 0">
+			LIMIT #{offset}, #{listCount}
+		</if>
+	</select>
+
+</mapper>

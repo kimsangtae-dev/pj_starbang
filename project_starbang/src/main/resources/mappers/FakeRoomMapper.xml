@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="FakeRoomMapper">
+
+	<!-- Beans 클래스의 객체이름(id)과 클래스이름(type)을 명시한다. -->
+	<resultMap id="fakeMap" type="project.star.b2.model.FakeRoom">
+		<!-- Beans의 멤버변수(property)이름과 대상 테이블의 컬럼(column)을 연결한다. -->
+		<result property="fakeno" column="fakeno" />
+		<result property="regdate" column="regdate" />
+		<result property="reason" column="reason" />
+		<result property="roomno" column="roomno" />
+		<result property="userno" column="userno" />
+	</resultMap>
+	
+	<insert id="insertItem"
+		parameterType="project.star.b2.model.FakeRoom" useGeneratedKeys="true"
+		keyProperty="fakeno">
+	INSERT INTO fakeroom (regdate, reason, roomno, userno, singo)
+	VALUES (now(), #{reason}, #{roomno}, #{userno}, #{singo});
+	</insert>
+	
+	<!-- 단일행 조회를 위한 기능 정의 -->
+    <select id="selectItem"
+        parameterType="project.star.b2.model.FakeRoom" resultMap="fakeMap">
+        SELECT fakeno, reason, roomno, userno, singo 
+        FROM fakeroom
+        <where>
+            <if test="roomno != null and userno != null">
+                roomno=#{roomno} AND singo=${singo}
+            </if>
+        </where>
+            </select>
+ 	
+ 	<!-- 다중행 조회를 위한 기능 정의 -->           
+     <select id="selectList"
+        parameterType="project.star.b2.model.FakeRoom"
+        resultMap="fakeMap">
+        SELECT * FROM fakeroom WHERE roomno=#{roomno}
+    </select>
+
+</mapper>

@@ -1,0 +1,95 @@
+@charset "utf-8";
+
+    /* -----------------------------------------
+    |   닫기버튼
+    ------------------------------------------ */
+    .btnclose {
+ 	   	width: 30px;
+ 	   	height: 30px;
+ 	   	background-color: transparent ;
+ 	   	position: absolute;
+ 	   	top: 25px;
+ 	   	right: 30px;
+ 	   	border-width: 0px;
+ 	   	border-style: initial;
+ 	   	border-color: initial;
+ 	   	border-image: initial;
+    }
+   
+    .btnclose > svg {
+ 	   position: absolute;
+ 	   top: 0px;
+ 	   left: 0px;
+    }
+   
+    svg[Attributes Style] {
+ 	   width: 30;
+ 	   height: 30;
+    }
+   
+    g[Attributes Style] {
+ 	   fill: none;
+ 	   fill-rule: evenodd;
+ 	   transform: translate(1, 1);
+    }
+   
+    .btnclose > svg .Circle {
+ 	   fill: rgb(255, 255, 255);
+ 	   stroke: rgb(151, 151, 151);
+ 	   opacity: 0.3;
+    }
+   
+    circle[Attributes Style] {
+	    cx: 15;
+	    cy: 15;
+	    r: 15;
+    }
+   
+	.btnclose > svg .Close {
+	 stroke: rgb(35, 45, 74);
+	}
+	
+	.btnclose > svg .Close {
+	 stroke: rgb(35, 45, 74);
+	}
+	
+	.btnclose > svg:hover .Circle {
+	 opacity: 0.6;
+	}
+
+	/* -------------------------------------------
+	|	모달 본문
+	-------------------------------------------- */
+	
+	/* 모달 전체 박스 크기 */
+	.modal-content {
+    width: 800px;
+    height: 700px;
+    margin: 100px auto;
+    padding: 20px;
+	}
+	
+	.fake_box {
+	    min-height: 800px;
+	}
+	
+	.fake-header {
+	    width: 600px;
+	    height: 70px;
+	    line-height: 70px;
+	    float: left;
+	    margin-bottom: 20px;
+	}
+	
+	img {
+	    width: 70px;
+	}
+	
+	p {
+	    display: inline-block;
+	    font-size: 25px;
+	    position: relative;
+	    top: 15px;
+	    left: 20px;
+	    font-weight: 600;
+	}
