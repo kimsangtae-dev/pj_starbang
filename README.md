@@ -1,5 +1,6 @@
 # 학원 프로젝트
 
+<div width="800" height="500">
 학원명: 이젠 IT 아카데미 강남 
 프로젝트명: 별방 (다방 벤치마킹)
 주제: 부동산 플랫폼사이트
@@ -15,6 +16,7 @@
               - MyBatis3, MySQL8.0
              Software Configuration Management
               - Github(형상관리)
+</div>
 
 <div>
   <img width="500" src="https://user-images.githubusercontent.com/58894035/72663224-822dbc80-3a33-11ea-8414-2bdb459bd72b.png">
