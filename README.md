@@ -14,7 +14,7 @@
 
 별방프로젝트 주소: http://itproject.ezenac.co.kr/b2/
 
-
+<a href="http://itproject.ezenac.co.kr/b2/" target="_blank">별방</a>
 
 
 
