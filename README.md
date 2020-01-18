@@ -11,7 +11,7 @@
   <img width="500" src="https://user-images.githubusercontent.com/58894035/72663224-822dbc80-3a33-11ea-8414-2bdb459bd72b.png">
 </div>
 
-<hr />
+
 
 #지금부터
 
